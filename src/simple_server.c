@@ -15,6 +15,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdint.h>
 
 /* the port on which to accept connections */
 #define SERVERPORT 12345
@@ -50,7 +51,7 @@ void *serverWatch(__attribute__((unused)) void *dummy) {
   pthread_t dummy_thr;
   int srv_socket;
   int accepted_socket;
-  int size;
+  socklen_t size;
   struct sockaddr_in port_addr, accept_addr;
 
   int set_opt = 1;
@@ -86,25 +87,26 @@ void *serverWatch(__attribute__((unused)) void *dummy) {
     size = sizeof(accept_addr);
     accepted_socket =
         accept(srv_socket, (struct sockaddr *)&accept_addr, &size);
-    pthread_create(&dummy_thr, NULL, serveClient, (void *)accepted_socket);
+    pthread_create(&dummy_thr, NULL, serveClient, (void *)(intptr_t)accepted_socket);
   }
 }
+
 
 /*************
 **
 ** serve the client on the specified socket
 **
 */
-void *serveClient(void *socket) {
+void *serveClient(void *param) {
   char buffer[256];
-
+  int socket = (intptr_t)param;
   for (;;) {
     strcpy(buffer, "Type 'X' to quit\n");
-    write((int)socket, buffer, strlen(buffer));
+    write(socket, buffer, strlen(buffer));
 
-    if (read((int)socket, buffer, 255) > 0) {
+    if (read(socket, buffer, 255) > 0) {
       if (buffer[0] == 'X') {
-        close((int)socket);
+        close(socket);
         pthread_exit(NULL);
       }
     }
