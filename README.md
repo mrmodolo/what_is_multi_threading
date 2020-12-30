@@ -35,3 +35,20 @@ void* matMult( void* param )
 }
 
 ```
+
+> gcc -o ./build/matrix_multiplication ./src/simple_multi-threaded_matrix_multiplication.c -lpthread
+> gcc -o ./build/server ./src/simple_server.c -lpthread 
+> ./src/simple_server.c: In function ‘serverWatch’:
+> ./src/simple_server.c:89:51: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+>    89 |     pthread_create(&dummy_thr, NULL, serveClient, (void *)accepted_socket);
+>       |                                                   ^
+> ./src/simple_server.c: In function ‘serveClient’:
+> ./src/simple_server.c:103:11: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+>   103 |     write((int)socket, buffer, strlen(buffer));
+>       |           ^
+> ./src/simple_server.c:105:14: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+>   105 |     if (read((int)socket, buffer, 255) > 0) {
+>       |              ^
+> ./src/simple_server.c:107:15: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+>   107 |         close((int)socket);
+>       |               ^
