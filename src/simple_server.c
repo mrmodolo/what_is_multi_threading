@@ -46,7 +46,7 @@ int main(void) {
 ** the argument to the function is not used
 **
 */
-void *serverWatch(void *dummy) {
+void *serverWatch(__attribute__((unused)) void *dummy) {
   pthread_t dummy_thr;
   int srv_socket;
   int accepted_socket;
