@@ -4,7 +4,7 @@
 **
 */
 
-#define _REENTRANT
+/* #define _REENTRANT obsolete */
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>

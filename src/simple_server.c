@@ -6,7 +6,7 @@
 */
 
 #define _GNU_SOURCE
-#define _REENTRANT
+/* #define _REENTRANT obsolete */
 
 #include <netinet/in.h>
 #include <pthread.h>
