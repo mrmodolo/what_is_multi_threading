@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -Wextra
 LDFLAGS = -lpthread
 BUILD_DIR := ./build
 SRC_DIR := ./src
