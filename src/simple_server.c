@@ -10,12 +10,14 @@
 
 #include <netinet/in.h>
 #include <pthread.h>
+#include <signal.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <stdint.h>
 
 /* the port on which to accept connections */
 #define SERVERPORT 12345
@@ -23,6 +25,7 @@
 /* function prototypes */
 void *serverWatch(void *);
 void *serveClient(void *);
+void int_handler(int);
 
 int main(void) {
 
@@ -30,6 +33,7 @@ int main(void) {
 
   pthread_create(&watcher_thr, NULL, serverWatch, (void *)NULL);
 
+  signal(SIGINT, int_handler);
   for (;;) {
     /* do something useful */
     printf("server is running\n");
@@ -87,10 +91,10 @@ void *serverWatch(__attribute__((unused)) void *dummy) {
     size = sizeof(accept_addr);
     accepted_socket =
         accept(srv_socket, (struct sockaddr *)&accept_addr, &size);
-    pthread_create(&dummy_thr, NULL, serveClient, (void *)(intptr_t)accepted_socket);
+    pthread_create(&dummy_thr, NULL, serveClient,
+                   (void *)(intptr_t)accepted_socket);
   }
 }
-
 
 /*************
 **
@@ -100,6 +104,7 @@ void *serverWatch(__attribute__((unused)) void *dummy) {
 void *serveClient(void *param) {
   char buffer[256];
   int socket = (intptr_t)param;
+
   for (;;) {
     strcpy(buffer, "Type 'X' to quit\n");
     write(socket, buffer, strlen(buffer));
@@ -110,5 +115,25 @@ void *serveClient(void *param) {
         pthread_exit(NULL);
       }
     }
+  }
+}
+
+/***************
+ **
+ ** Signal handler
+ **
+ */
+void int_handler(int sig) {
+  char c;
+
+  signal(sig, SIG_IGN);
+  printf("OUCH, did you hit Ctrl-C?\n"
+         "Do you really want to quit? [y/n] ");
+  c = getchar();
+  if (c == 'y' || c == 'Y' || c == 's' || c == 'S') {
+    exit(0);
+  } else {
+    signal(SIGINT, int_handler);
+    getchar();
   }
 }
